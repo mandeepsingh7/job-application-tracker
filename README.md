@@ -45,8 +45,3 @@ Board → Columns → Job Applications
 6. The FastAPI service invokes OpenAI to generate job-specific insights, including a personalized cover letter and preparation notes.
 7. Generated content is persisted in MongoDB and linked to the corresponding job application.
 8. Users can review, edit, and manage job application data through dashboard. 
-
-## Links
-Live Demo: https://job-tracker.mandeeps.in
-
-GitHub Repository: https://github.com/mandeepsingh7/job-application-tracker
