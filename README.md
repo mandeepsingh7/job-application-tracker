@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Powered Job Application Tracker 
 
-## Getting Started
+A full stack job application management platform that helps users organize job applications and generate AI assisted cover letters and preparation notes about job application
 
-First, run the development server:
+## Live Demo
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+https://job-tracker.mandeeps.in
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
+- User authentication and profile management
+- Job Application Tracking 
+- AI generated cover letters and preparation notes
+- Persistent storage with MongoDB
+- Responsive Next.js frontend
+- FastAPI AI backend 
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Frontend:
+- Next.js
+- TypeScript
+- Tailwind CSS
+- Better Auth
 
-## Learn More
+### Backend:
+- FastAPI
+- OpenAI
+- LangChain
 
-To learn more about Next.js, take a look at the following resources:
+### Database:
+- MongoDB
+- Mongoose
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Deployment:
+- Vercel (Frontend)
+- AWS EC2 (Backend)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Workflow 
+1. Users authenticate using Better Auth. 
+2. On Profile Page, users can add Education, Experience, Projects, Skills, Courses details, which serve as context for AI generated insights. 
+3. Job applications are organized using a Kanban-style workflow. Each application belongs to a column (Wishlist, Applied, Interviewing, Rejected, or Offered), with columns grouped under a user-specific board.
+4. Application and profile data are persisted in MongoDB using a hierarchical data model: 
+Board → Columns → Job Applications
+5. When a new job application is created, the Next.js frontend sends the job details and user profile information to a FastAPI backend.
+6. The FastAPI service invokes OpenAI to generate job-specific insights, including a personalized cover letter and preparation notes.
+7. Generated content is persisted in MongoDB and linked to the corresponding job application.
+8. Users can review, edit, and manage job application data through dashboard. 
 
-## Deploy on Vercel
+## Links
+Live Demo: https://job-tracker.mandeeps.in
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+GitHub Repository: https://github.com/mandeepsingh7/job-application-tracker
