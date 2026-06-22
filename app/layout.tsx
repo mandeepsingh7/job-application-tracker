@@ -36,7 +36,7 @@ export default function RootLayout({
         <footer className="py-6 pt-10">
           <div className="container mx-auto px-4 text-center">
             <p className="text-sm font-medium">Job Application Tracker</p>
-            <p className="text-xs text-muted-foreground mt-1">Built with Next.js, MongoDB, Better Auth, and AI Powered cover letter generation</p>
+            <p className="text-xs text-muted-foreground mt-1">Organize job applications, track progress, and generate tailored cover letters.</p>
           </div>
         </footer>
       </body>
