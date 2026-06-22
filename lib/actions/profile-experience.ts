@@ -9,7 +9,7 @@ import { success } from "better-auth";
 interface ExperienceData {
   company: string;
   role: string;
-  location: string;
+  location?: string;
   startDate: string;
   endDate?: string;
   description: string;
@@ -33,7 +33,7 @@ export async function addExperience(data: ExperienceData) {
   description,
   } = data;
 
-  if (!company || !role || !location || !startDate || !description){
+  if (!company || !role || !startDate || !description){
     return {error: "Missing Required Fields"};
   }
 

@@ -18,11 +18,11 @@ import { authClient, signIn } from "@/lib/auth/auth-client";
 import { SubmitEvent } from "react";
 import { FaGoogle } from "react-icons/fa";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 
-export default function SignIn() {
+export default function ForgotPassword() {
 
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,19 +36,19 @@ export default function SignIn() {
     setLoading(true);
 
     try {
-      const result = await signIn.email({
-        email,
-        password,
-      });
+      const result = await authClient.requestPasswordReset({
+        email: email,
+        redirectTo: '/reset-password'
+      })
 
       if (result.error) {
-        setError(result.error.message ?? "An Error Occured while logging in.");
+        setError(result.error.message ?? "An Error Occured while resetting password");
       } else {
-        router.push("/dashboard");
+        toast.success('Succesfully sent password reset link. Please also check your spam folder.')
       }
     } catch (err) {
       console.error(err);
-      setError("An error occured.");
+      setError("Failed to send reset email.");
     } finally {
       setLoading(false);
     }
@@ -57,7 +57,7 @@ export default function SignIn() {
     <div className="flex min-h-[calc(100vh-62px)] items-start justify-center" style={{ marginTop: "10vh" }}>
       <Card className="w-full max-w-xs sm:max-w-sm">
         <CardHeader>
-          <CardTitle>Log In</CardTitle>
+          <CardTitle>Forgot Password</CardTitle>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="flex flex-col gap-2 mb-5">
@@ -80,45 +80,10 @@ export default function SignIn() {
                 className="text-sm placeholder:text-chart-1/50"
               />
             </div>
-            <div>
-              <Label htmlFor="password" className="mb-1 px-2">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="********"
-                minLength={8}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="text-sm placeholder:text-chart-1/50"
-              />
-            </div>
-            <div className="flex justify-end">
-                <Link href='/forgot-password'>
-                <Button variant='ghost' size="sm">Forgot Password?</Button></Link>
-            </div>
-            
           </CardContent>
           <CardFooter className="flex flex-col gap-2 justify-between p-7">
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Logging in..." : "Log In"}
-            </Button>
-            <p>Or</p>
-            <Button
-            type='button'
-            variant='outline'
-            className="w-full"
-            onClick={async() => {
-              await authClient.signIn.social({
-                provider: 'google',
-                callbackURL: '/dashboard',
-              });
-            }}
-            >
-              <FaGoogle />
-              Login with Google
+              {loading ? "Sending reset link..." : "Send Reset Password Link"}
             </Button>
 
             <p className="flex gap-3 items-center">Don't have an account?

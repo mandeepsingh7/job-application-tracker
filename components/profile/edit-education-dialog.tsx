@@ -16,6 +16,8 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { addEducation, updateEducation } from "@/lib/actions/profile-education";
 import { Education } from "@/lib/models/models.types";
+import { toast } from "sonner";
+import { Spinner } from "../ui/spinner";
 
 export default function EditEducationDialog({
   isEditing,
@@ -26,6 +28,7 @@ export default function EditEducationDialog({
   setIsEditing: (open: boolean) => void;
   education: Education;
 }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     institution: education.institution,
     degree: education.degree,
@@ -39,17 +42,23 @@ export default function EditEducationDialog({
     e.preventDefault();
 
     try {
+      setIsSubmitting(true);
       const result = await updateEducation(education._id, {
         ...formData
       });
 
       if (!result.error) {
         setIsEditing(false);
+        toast.success('Successifully made changes to the education entry. ');
       } else {
         console.error(result.error);
+        toast.error('Failed to make changes');
       }
     } catch(err){
       console.error('Failed to edit education details. ', err);
+      toast.error('Failed to make changes');
+    } finally {
+      setIsSubmitting(false);
     }
   }
   return (
@@ -60,7 +69,7 @@ export default function EditEducationDialog({
             Edit Education Details
           </DialogTitle>
           <DialogDescription>
-            Edit your education details
+            Edit your education details (all fields required)
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleUpdate}>
@@ -72,6 +81,7 @@ export default function EditEducationDialog({
                 placeholder="IISc Bangalore"
                 className="text-sm"
                 required
+                maxLength={200}
                 value={formData.institution}
                 onChange={(e) =>
                   setFormData({ ...formData, institution: e.target.value })
@@ -86,6 +96,7 @@ export default function EditEducationDialog({
                 placeholder="M Tech"
                 className="text-sm"
                 required
+                maxLength={200}
                 value={formData.degree}
                 onChange={(e) =>
                   setFormData({ ...formData, degree: e.target.value })
@@ -99,6 +110,7 @@ export default function EditEducationDialog({
                 placeholder="Computational and Data Science"
                 className="text-sm"
                 required
+                maxLength={200}
                 value={formData.specialization}
                 onChange={(e) =>
                   setFormData({ ...formData, specialization: e.target.value })
@@ -144,6 +156,7 @@ export default function EditEducationDialog({
                 placeholder="CGPA: 8.4/10.0 or 84.00%"
                 className="text-sm"
                 required
+                maxLength={200}
                 value={formData.grade}
                 onChange={(e) =>
                   setFormData({ ...formData, grade: e.target.value })
@@ -151,9 +164,13 @@ export default function EditEducationDialog({
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-3">
             <div className="flex gap-3">
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? <>
+                <Spinner /> Saving changes...
+                </> : <>Save Changes</>}
+              </Button>
               <Button
                 type="button"
                 variant="outline"

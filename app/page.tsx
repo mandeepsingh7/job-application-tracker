@@ -1,14 +1,18 @@
+import InterfaceShowcase from "@/components/interface_showcase";
+import InterfaceShowcaseMobile from "@/components/interface_showcase_mobile";
 import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/auth/auth";
 import Link from "next/link";
 import { Suspense } from "react";
 
+
+
 async function HomePage() {
   const session = await getSession();
   return (
     <div className="flex min-h-screen flex-col">
-      <main>
-        <section className="mx-auto px-4 py-32">
+      <main className="flex flex-col items-center">
+        <section className="mx-auto px-4 py-10">
           <div className="mx-auto text-center">
             <h1 className="text-4xl sm:text-6xl font-bold mb-1 sm:mb-3 text-foreground">
               Job Application Tracker
@@ -25,6 +29,14 @@ async function HomePage() {
             </div>
           </div>
         </section>
+        <div className="hidden md:block">
+          <InterfaceShowcase />
+        </div>
+
+        <div className="block md:hidden">
+          <InterfaceShowcaseMobile />
+        </div>
+        
       </main>
     </div>
   );

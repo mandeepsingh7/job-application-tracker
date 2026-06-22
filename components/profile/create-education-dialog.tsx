@@ -15,6 +15,8 @@ import { Plus } from "lucide-react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { addEducation } from "@/lib/actions/profile-education";
+import { toast } from "sonner";
+import { Spinner } from "../ui/spinner";
 
 const INITIAL_FORM_DATA = {
   institution: "",
@@ -26,6 +28,7 @@ const INITIAL_FORM_DATA = {
 };
 
 export default function CreateEducationDialog() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 
@@ -33,15 +36,19 @@ export default function CreateEducationDialog() {
     e.preventDefault();
 
     try {
+      setIsSubmitting(true);
       const result = await addEducation({...formData});
 
       if (!result.error) {
         setFormData(INITIAL_FORM_DATA);
         setOpen(false);
+        toast.success('Successfully added the education entry. ')
       }
     } catch(err) {
       console.error(err);
-      throw err;
+      toast.error('Failed to add the education entry')
+    } finally {
+      setIsSubmitting(false);
     }
   }
   return (
@@ -51,13 +58,13 @@ export default function CreateEducationDialog() {
           <Plus className="size-3" /> Add Education
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] overflow-y-auto ">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
             Add Education
           </DialogTitle>
           <DialogDescription>
-            Fill in details about your education
+            Fill in details about your education (all fields are required)
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -69,6 +76,7 @@ export default function CreateEducationDialog() {
                 placeholder="IISc Bangalore"
                 className="text-sm"
                 required
+                maxLength={200}
                 value={formData.institution}
                 onChange={(e) =>
                   setFormData({ ...formData, institution: e.target.value })
@@ -83,6 +91,7 @@ export default function CreateEducationDialog() {
                 placeholder="M Tech"
                 className="text-sm"
                 required
+                maxLength={200}
                 value={formData.degree}
                 onChange={(e) =>
                   setFormData({ ...formData, degree: e.target.value })
@@ -96,6 +105,7 @@ export default function CreateEducationDialog() {
                 placeholder="Computational and Data Science"
                 className="text-sm"
                 required
+                maxLength={200}
                 value={formData.specialization}
                 onChange={(e) =>
                   setFormData({ ...formData, specialization: e.target.value })
@@ -138,9 +148,10 @@ export default function CreateEducationDialog() {
               <Label htmlFor="grade">Grade</Label>
               <Input
                 id="grade"
-                placeholder="CGPA: 8.4/10.0 or 84.00%"
+                placeholder="Type in CGPA or Percentage. e.g. CGPA: 8.4"
                 className="text-sm"
                 required
+                maxLength={200}
                 value={formData.grade}
                 onChange={(e) =>
                   setFormData({ ...formData, grade: e.target.value })
@@ -148,9 +159,13 @@ export default function CreateEducationDialog() {
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-3">
             <div className="flex gap-3">
-              <Button type="submit">Submit</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? <>
+                <Spinner /> Adding Education Entry...
+                </> : <>Submit</>}
+              </Button>
               <Button
                 type="button"
                 variant="outline"

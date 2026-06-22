@@ -17,6 +17,7 @@ import EditProjectDialog from "./edit-project-dialog";
 import CreateProjectDialog from "./create-project-dialog";
 import { FaGithub, FaGithubSquare } from "react-icons/fa";
 import Link from "next/link";
+import { toast } from "sonner";
 
 
 function SingleProjectCard({ project }: { project: Project }) {
@@ -24,11 +25,16 @@ function SingleProjectCard({ project }: { project: Project }) {
   async function handleDelete() {
     try {
       const result = await deleteProject(project._id);
+      if (!result.error) {
+        toast.success('Successfully deleted the project entry.');
+      }
       if (result.error) {
         console.error("Failed to delete project entry ", result.error);
+        toast.error("Failed to delete project entry.");
       }
     } catch (err) {
       console.error("Failed to delete project entry.");
+      toast.error("Failed to delete project entry.");
     }
   }
   return (
@@ -43,17 +49,23 @@ function SingleProjectCard({ project }: { project: Project }) {
               <p className="text-xs text-muted-foreground whitespace-pre-line">{project.description}</p>
 
               <div className="flex gap-1">
+                
+                {project.githubUrl ? <>
                 <Button variant="secondary" size="sm" className="mt-2 ">
                   <a href={project.githubUrl} target="_blank" className="inline-flex items-center gap-2">
                     <FaGithub className="h-4 w-4"/> Github
                   </a>
                 </Button>
+                </> : <></>}
 
+                {project.projectUrl ? <>
                 <Button variant="secondary" size="sm" className="mt-2 ">
                   <a href={project.projectUrl} target="_blank" className="inline-flex items-center gap-2">
                    Project Page
                   </a>
                 </Button>
+                </> : <></>}
+
               </div>
 
               {/* <p className="text-xs text-muted-foreground">

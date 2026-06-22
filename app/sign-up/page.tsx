@@ -11,11 +11,12 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signUp } from "@/lib/auth/auth-client";
+import { authClient, signUp } from "@/lib/auth/auth-client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitEvent } from "react";
+import { FaGoogle } from "react-icons/fa";
 
 export default function SignUp() {
   const [name, setName] = useState("");
@@ -58,7 +59,7 @@ export default function SignUp() {
       className="flex min-h-[calc(100vh-62px)] items-start justify-center"
       style={{ marginTop: "10vh" }}
     >
-      <Card className="w-full max-w-sm">
+      <Card className="w-full max-w-xs sm:max-w-sm">
         <CardHeader>
           <CardTitle>Sign Up</CardTitle>
           <CardDescription>Create an account</CardDescription>
@@ -117,6 +118,21 @@ export default function SignUp() {
           <CardFooter className="flex flex-col gap-2 justify-between p-7">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Creating account..." : "Sign Up"}
+            </Button>
+            <p>Or</p>
+            <Button
+            type='button'
+            variant='outline'
+            className="w-full"
+            onClick={async() => {
+              await authClient.signIn.social({
+                provider: 'google',
+                callbackURL: '/dashboard',
+              });
+            }}
+            >
+              <FaGoogle />
+              Login with Google
             </Button>
             <p className="flex gap-3 items-center">
               Already have an account?

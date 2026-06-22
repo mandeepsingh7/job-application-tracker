@@ -8,6 +8,8 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { editCourses } from "@/lib/actions/profile-courses";
+import { toast } from "sonner";
+import { Spinner } from "../ui/spinner";
 
 export default function EditCoursesDialog({
   isEditing,
@@ -18,22 +20,29 @@ export default function EditCoursesDialog({
   setIsEditing: (open: boolean) => void;
   courses: string;
 }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [coursesText, setCoursesText] = useState(courses);
   async function handleUpdate(e: SubmitEvent) {
     e.preventDefault();
 
     try {
+      setIsSubmitting(true);
       const result = await editCourses(
         coursesText.split('\n').map((course) => course.trim())
         .filter((course) => course.length > 0)
       );
       if (!result.error) {
         setIsEditing(false);
+        toast.success('Courses updated successfully.');
       } else {
         console.error(result.error);
+        toast.error('Failed to update courses');
       }
     } catch(err) {
       console.error('Failed to edit courses. ', err)
+      toast.error('Failed to update courses');
+    } finally {
+      setIsSubmitting(false);
     }
   }
   return (
@@ -57,12 +66,12 @@ export default function EditCoursesDialog({
         <form onSubmit={handleUpdate}>
           <div>
             <div className="space-y-1 pb-2">
-              <Label htmlFor="courses">Courses (comma-separated)</Label>
+              <Label htmlFor="courses">Courses (Enter each course on a new line)</Label>
               <Textarea
                 id="courses"
-                placeholder="Type your courses here (separated by commas). "
+                placeholder="Type your courses here. Enter each course on a new line "
                 className="text-sm h-24 resize-none overflow-y-auto"
-                maxLength={1000}
+                maxLength={2000}
                 value={coursesText}
                 onChange={(e) =>
                   setCoursesText(e.target.value)
@@ -70,9 +79,13 @@ export default function EditCoursesDialog({
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-3">
             <div className="flex gap-3">
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? <>
+                <Spinner /> Making changes...
+                </> : <>Save Changes</>}
+              </Button>
               <Button
                 type="button"
                 variant="outline"

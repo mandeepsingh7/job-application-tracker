@@ -16,6 +16,8 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { addExperience } from "@/lib/actions/profile-experience";
 import { Textarea } from "../ui/textarea";
+import { toast } from "sonner";
+import { Spinner } from "../ui/spinner";
 
 const INITIAL_FORM_DATA = {
   company: "",
@@ -27,6 +29,7 @@ const INITIAL_FORM_DATA = {
 };
 
 export default function CreateExperienceDialog() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 
@@ -34,15 +37,19 @@ export default function CreateExperienceDialog() {
     e.preventDefault();
 
     try {
+      setIsSubmitting(true);
       const result = await addExperience({...formData});
 
       if (!result.error) {
         setFormData(INITIAL_FORM_DATA);
         setOpen(false);
+        toast.success('Successfully added the experience entry. ');
       }
     } catch(err) {
       console.error(err);
-      throw err;
+      toast.error('Failed to add the experience entry.');
+    } finally {
+      setIsSubmitting(false);
     }
   }
   return (
@@ -64,12 +71,13 @@ export default function CreateExperienceDialog() {
         <form onSubmit={handleSubmit}>
           <div>
             <div className="space-y-1 pb-2">
-              <Label htmlFor="company">Company</Label>
+              <Label htmlFor="company">Company*</Label>
               <Input
                 id="company"
                 className="text-sm"
                 required
                 value={formData.company}
+                maxLength={200}
                 onChange={(e) =>
                   setFormData({ ...formData, company: e.target.value })
                 }
@@ -77,11 +85,12 @@ export default function CreateExperienceDialog() {
             </div>
 
             <div className="space-y-1 pb-2">
-              <Label htmlFor="role">Role</Label>
+              <Label htmlFor="role">Role*</Label>
               <Input
                 id="role"
                 className="text-sm"
                 required
+                maxLength={200}
                 value={formData.role}
                 onChange={(e) =>
                   setFormData({ ...formData, role: e.target.value })
@@ -93,7 +102,7 @@ export default function CreateExperienceDialog() {
               <Input
                 id="location"
                 className="text-sm"
-                required
+                maxLength={500}
                 value={formData.location}
                 onChange={(e) =>
                   setFormData({ ...formData, location: e.target.value })
@@ -103,7 +112,7 @@ export default function CreateExperienceDialog() {
 
             <div className="grid grid-cols-2 gap-4 ">
               <div className="space-y-1 pb-2">
-                <Label htmlFor="startDate">Start Date</Label>
+                <Label htmlFor="startDate">Start Date*</Label>
                 <Input
                   id="startDate"
                   type="month"
@@ -132,12 +141,12 @@ export default function CreateExperienceDialog() {
             </div>
 
             <div className="space-y-1 pb-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Description*</Label>
               <Textarea
                 id="description"
                 placeholder="Experience details go here. "
                 className="text-sm h-24 resize-none overflow-y-auto"
-                maxLength={5000}
+                maxLength={10000}
                 required
                 value={formData.description}
                 onChange={(e) =>
@@ -146,9 +155,13 @@ export default function CreateExperienceDialog() {
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-3">
             <div className="flex gap-3">
-              <Button type="submit">Submit</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? <>
+                <Spinner /> Adding Experience Entry...
+                </> : <>Submit</>}
+              </Button>
               <Button
                 type="button"
                 variant="outline"

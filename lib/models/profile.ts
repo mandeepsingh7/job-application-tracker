@@ -1,3 +1,4 @@
+import { maxLength } from "better-auth";
 import mongoose, {Schema, Document} from "mongoose";
 
 export interface IProfile extends Document {
@@ -15,7 +16,7 @@ export interface IProfile extends Document {
   experience: {
     company: string;
     role: string;
-    location: string;
+    location?: string;
     startDate: Date;
     endDate?: Date;
     description: string;
@@ -49,14 +50,17 @@ const ProfileSchema = new Schema<IProfile>(
         institution: {
           type: String,
           required: true,
+          maxLength: 200,
         },
         degree: {
           type: String,
           required: true,
+          maxLength: 200
         },
         specialization: {
           type: String,
           required: true,
+          maxLength: 200
         },
         startDate: {
           type: Date,
@@ -69,6 +73,7 @@ const ProfileSchema = new Schema<IProfile>(
         grade: {
           type: String,
           required: true,
+          maxLength: 200
         }
       }
     ],
@@ -78,14 +83,16 @@ const ProfileSchema = new Schema<IProfile>(
         company: {
           type: String,
           required: true,
+          maxLength: 200
         },
         role: {
           type: String,
           required: true,
+          maxLength: 200
         },
         location: {
           type: String,
-          required: true,
+          maxLength: 500
         },
         startDate: {
           type: Date,
@@ -97,6 +104,7 @@ const ProfileSchema = new Schema<IProfile>(
         description: {
           type: String,
           required: true,
+          maxLength: 10000
         }
       }
     ],
@@ -105,12 +113,14 @@ const ProfileSchema = new Schema<IProfile>(
       {
         title: {
           type: String,
-          required: true
+          required: true,
+          maxLength: 500
         },
 
         description: {
           type: String,
-          required: true
+          required: true,
+          maxLength: 10000
         },
 
         projectUrl: {

@@ -17,6 +17,8 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Project } from "@/lib/models/models.types";
 import { updateProject } from "@/lib/actions/profile-projects";
+import { toast } from "sonner";
+import { Spinner } from "../ui/spinner";
 
 export default function EditProjectDialog({
   isEditing,
@@ -27,6 +29,7 @@ export default function EditProjectDialog({
   setIsEditing: (open: boolean) => void;
   project: Project;
 }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: project.title,
     description: project.description,
@@ -38,17 +41,23 @@ export default function EditProjectDialog({
     e.preventDefault();
 
     try {
+      setIsSubmitting(true);
       const result = await updateProject(project._id, {
         ...formData
       });
 
       if (!result.error) {
         setIsEditing(false);
+        toast.success('Successifully made changes to the project entry. ');
       } else {
         console.error(result.error);
+        toast.error('Failed to make changes');
       }
     } catch(err){
       console.error('Failed to edit project details. ', err);
+      toast.error('Failed to make changes');
+    } finally {
+      setIsSubmitting(false);
     }
   }
   return (
@@ -65,12 +74,13 @@ export default function EditProjectDialog({
         <form onSubmit={handleUpdate}>
           <div>
             <div className="space-y-1 pb-2">
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="title">Title*</Label>
               <Input
                 id="title"
                 className="text-sm"
                 required
                 value={formData.title}
+                maxLength={500}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
@@ -83,6 +93,7 @@ export default function EditProjectDialog({
                 id="projectUrl"
                 className="text-sm"
                 value={formData.projectUrl}
+                maxLength={500}
                 onChange={(e) =>
                   setFormData({ ...formData, projectUrl: e.target.value })
                 }
@@ -95,6 +106,7 @@ export default function EditProjectDialog({
                 id="githubUrl"
                 className="text-sm"
                 value={formData.githubUrl}
+                maxLength={500}
                 onChange={(e) =>
                   setFormData({ ...formData, githubUrl: e.target.value })
                 }
@@ -102,12 +114,12 @@ export default function EditProjectDialog({
             </div>
 
             <div className="space-y-1 pb-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Description*</Label>
               <Textarea
                 id="description"
                 placeholder="Project details go here. "
                 className="text-sm h-24 resize-none overflow-y-auto"
-                maxLength={5000}
+                maxLength={10000}
                 required
                 value={formData.description}
                 onChange={(e) =>
@@ -116,9 +128,13 @@ export default function EditProjectDialog({
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-3">
             <div className="flex gap-3">
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? <>
+                <Spinner /> Saving changes...
+                </> : <>Save Changes</>}
+              </Button>
               <Button
                 type="button"
                 variant="outline"

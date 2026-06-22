@@ -18,6 +18,7 @@ import { SubmitEvent, useState } from "react";
 import { createJobApplication, updateJobApplication } from "@/lib/actions/job-applications";
 import { JobApplication } from "@/lib/models/models.types";
 import { toast } from "sonner";
+import { Spinner } from "./ui/spinner";
 
 export default function EditJobApplicationDialog({
   isEditing,
@@ -28,7 +29,7 @@ export default function EditJobApplicationDialog({
   setIsEditing: (open: boolean) => void;
   job: JobApplication;
 }) {
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     company: job.company,
     role: job.role,
@@ -47,16 +48,20 @@ export default function EditJobApplicationDialog({
     e.preventDefault();
 
     try {
+      setIsSubmitting(true);
       const result = await updateJobApplication(job._id, {
         ...formData,
       });
 
       if (!result.error) {
         setIsEditing(false);
-        toast.success("Updated Job Application.")
+        toast.success("Updated Job Application.");
       }
     } catch(err){
       console.error('Failed to edit job application', err);
+      toast.error('Failed to edit Job Application.')
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -208,7 +213,11 @@ export default function EditJobApplicationDialog({
           </div>
           <DialogFooter>
             <div className="flex gap-3">
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? <>
+                <Spinner /> Saving changes...
+                </> : <>Save Changes</>}
+              </Button>
               <Button
                 type="button"
                 variant="outline"

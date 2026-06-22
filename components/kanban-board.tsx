@@ -43,7 +43,7 @@ function KanbanColumn({
           <div>
             <CardTitle>{column.name}</CardTitle>
           </div>
-          <DropdownMenu>
+          {/* <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost">
                 <MoreVertical />
@@ -52,7 +52,7 @@ function KanbanColumn({
             <DropdownMenuContent>
               <DropdownMenuItem>random</DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu> */}
         </div>
       </CardHeader>
       <CardContent className="overflow-y-auto flex-1">

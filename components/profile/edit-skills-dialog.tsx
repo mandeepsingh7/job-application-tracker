@@ -8,6 +8,8 @@ import { Edit, Plus } from "lucide-react";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
+import { toast } from "sonner";
+import { Spinner } from "../ui/spinner";
 
 export default function EditSkillsDialog({
   isEditing,
@@ -18,22 +20,29 @@ export default function EditSkillsDialog({
   setIsEditing: (open: boolean) => void;
   skills: string;
 }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [skillsText, setSkillsText] = useState(skills);
   async function handleUpdate(e: SubmitEvent) {
     e.preventDefault();
 
     try {
+      setIsSubmitting(true);
       const result = await editSkills(
         skillsText.split(',').map((skill) => skill.trim())
         .filter((skill) => skill.length > 0)
       );
       if (!result.error) {
         setIsEditing(false);
+        toast.success('Skills updated successfully.');
       } else {
         console.error(result.error);
+        toast.error('Failed to update skills');
       }
     } catch(err) {
       console.error('Failed to edit skills. ', err)
+      toast.error('Failed to update skills.');
+    } finally {
+      setIsSubmitting(false);
     }
   }
   return (
@@ -62,7 +71,7 @@ export default function EditSkillsDialog({
                 id="skills"
                 placeholder="Type your skills here (separated by commas). "
                 className="text-sm h-24 resize-none overflow-y-auto"
-                maxLength={1000}
+                maxLength={2000}
                 value={skillsText}
                 onChange={(e) =>
                   setSkillsText(e.target.value)
@@ -70,9 +79,13 @@ export default function EditSkillsDialog({
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-3">
             <div className="flex gap-3">
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? <>
+                <Spinner /> Making changes...
+                </> : <>Save Changes</>}
+              </Button>
               <Button
                 type="button"
                 variant="outline"

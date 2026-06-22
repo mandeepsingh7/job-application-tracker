@@ -17,6 +17,7 @@ export interface JobApplication {
     salary?: string;
     jobUrl?: string;
     coverLetter?: string;
+    aiStatus?: string;
 }
 
 export interface Column {

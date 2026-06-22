@@ -17,6 +17,8 @@ import { Input } from "../ui/input";
 import { Experience } from "@/lib/models/models.types";
 import { updateExperience } from "@/lib/actions/profile-experience";
 import { Textarea } from "../ui/textarea";
+import { toast } from "sonner";
+import { Spinner } from "../ui/spinner";
 
 export default function EditExperienceDialog({
   isEditing,
@@ -27,6 +29,7 @@ export default function EditExperienceDialog({
   setIsEditing: (open: boolean) => void;
   experience: Experience;
 }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     company: experience.company,
     role: experience.role,
@@ -40,17 +43,23 @@ export default function EditExperienceDialog({
     e.preventDefault();
 
     try {
+      setIsSubmitting(true);
       const result = await updateExperience(experience._id, {
         ...formData
       });
 
       if (!result.error) {
         setIsEditing(false);
+        toast.success('Successifully made changes to the experience entry. ');
       } else {
         console.error(result.error);
+        toast.error('Failed to make changes');
       }
     } catch(err){
       console.error('Failed to edit experience details. ', err);
+      toast.error('Failed to make changes');
+    } finally {
+      setIsSubmitting(false);
     }
   }
   return (
@@ -67,11 +76,12 @@ export default function EditExperienceDialog({
         <form onSubmit={handleUpdate}>
           <div>
             <div className="space-y-1 pb-2">
-              <Label htmlFor="company">Company</Label>
+              <Label htmlFor="company">Company*</Label>
               <Input
                 id="company"
                 className="text-sm"
                 required
+                maxLength={200}
                 value={formData.company}
                 onChange={(e) =>
                   setFormData({ ...formData, company: e.target.value })
@@ -80,11 +90,12 @@ export default function EditExperienceDialog({
             </div>
 
             <div className="space-y-1 pb-2">
-              <Label htmlFor="role">Role</Label>
+              <Label htmlFor="role">Role*</Label>
               <Input
                 id="role"
                 className="text-sm"
                 required
+                maxLength={200}
                 value={formData.role}
                 onChange={(e) =>
                   setFormData({ ...formData, role: e.target.value })
@@ -96,8 +107,8 @@ export default function EditExperienceDialog({
               <Input
                 id="location"
                 className="text-sm"
-                required
                 value={formData.location}
+                maxLength={500}
                 onChange={(e) =>
                   setFormData({ ...formData, location: e.target.value })
                 }
@@ -106,7 +117,7 @@ export default function EditExperienceDialog({
 
             <div className="grid grid-cols-2 gap-4 ">
               <div className="space-y-1 pb-2">
-                <Label htmlFor="startDate">Start Date</Label>
+                <Label htmlFor="startDate">Start Date*</Label>
                 <Input
                   id="startDate"
                   type="month"
@@ -140,7 +151,7 @@ export default function EditExperienceDialog({
                 id="description"
                 placeholder="Experience details go here. "
                 className="text-sm h-24 resize-none overflow-y-auto"
-                maxLength={5000}
+                maxLength={10000}
                 required
                 value={formData.description}
                 onChange={(e) =>
@@ -149,9 +160,13 @@ export default function EditExperienceDialog({
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-3">
             <div className="flex gap-3">
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? <>
+                <Spinner /> Saving changes...
+                </> : <>Save Changes</>}
+              </Button>
               <Button
                 type="button"
                 variant="outline"

@@ -15,7 +15,7 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { SubmitEvent, useState } from "react";
-import { createJobApplication } from "@/lib/actions/job-applications";
+import { addCoverLetter, createJobApplication } from "@/lib/actions/job-applications";
 import { Spinner } from "./ui/spinner";
 import { toast} from "sonner";
 
@@ -56,7 +56,7 @@ export default function CreateJobApplicationDialog({
       if (!result.error) {
         setFormData(INITIAL_FORM_DATA);
         setOpen(false);
-        toast.success('Successfully added Job Application. AI Insights generated. Open the job application to review the cover letter and notes.');
+        toast.success('Successfully added Job Application. You can generate cover letter now.');
       } else {
         console.error("Failed to create job. ", result.error);
         toast.error('Failed to add Job Application.')
@@ -94,6 +94,7 @@ export default function CreateJobApplicationDialog({
                   id="company"
                   required
                   value={formData.company}
+                  maxLength={200}
                   onChange={(e) =>
                     setFormData({ ...formData, company: e.target.value })
                   }
@@ -106,6 +107,7 @@ export default function CreateJobApplicationDialog({
                   id="role"
                   required
                   value={formData.role}
+                  maxLength={200}
                   onChange={(e) =>
                     setFormData({ ...formData, role: e.target.value })
                   }
@@ -119,6 +121,7 @@ export default function CreateJobApplicationDialog({
                 <Input
                   id="location"
                   value={formData.location}
+                  maxLength={500}
                   onChange={(e) =>
                     setFormData({ ...formData, location: e.target.value })
                   }
@@ -130,6 +133,7 @@ export default function CreateJobApplicationDialog({
                 <Input
                   id="salary"
                   value={formData.salary}
+                  maxLength={200}
                   onChange={(e) =>
                     setFormData({ ...formData, salary: e.target.value })
                   }
@@ -144,6 +148,7 @@ export default function CreateJobApplicationDialog({
                 type="url"
                 placeholder="https://example.com"
                 value={formData.jobUrl}
+                maxLength={500}
                 onChange={(e) =>
                   setFormData({ ...formData, jobUrl: e.target.value })
                 }
@@ -156,7 +161,7 @@ export default function CreateJobApplicationDialog({
                 id="description"
                 placeholder="Job description goes here (max 5000 characters)"
                 className="text-sm h-24 resize-none overflow-y-auto"
-                maxLength={5000}
+                maxLength={10000}
                 required
                 value={formData.description}
                 onChange={(e) =>
@@ -199,7 +204,7 @@ export default function CreateJobApplicationDialog({
                 id="notes"
                 placeholder="You can add notes here about the interview process, prep, or any miscellaneous notes (max 5000 characters)"
                 className="text-sm h-24 resize-none overflow-y-auto"
-                maxLength={5000}
+                maxLength={10000}
                 value={formData.notes}
                 onChange={(e) =>
                   setFormData({ ...formData, notes: e.target.value })
@@ -212,7 +217,7 @@ export default function CreateJobApplicationDialog({
                 id="coverLetter"
                 placeholder="Cover Letter goes here"
                 className="text-sm h-24 resize-none overflow-y-auto"
-                maxLength={5000}
+                maxLength={10000}
                 value={formData.coverLetter}
                 onChange={(e) =>
                   setFormData({ ...formData, coverLetter: e.target.value })
@@ -224,7 +229,7 @@ export default function CreateJobApplicationDialog({
             <div className="flex gap-3">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? <>
-                <Spinner /> Generating Cover Letter...
+                <Spinner /> Adding Application...
                 </> : <>Add Application</>}
               </Button>
               <Button

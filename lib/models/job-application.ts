@@ -16,6 +16,7 @@ export interface IJobApplication extends Document {
     salary?: string;
     jobUrl?: string;
     coverLetter?: string;
+    aiStatus?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -25,21 +26,26 @@ const JobApplicationSchema = new Schema<IJobApplication>(
         company: {
             type: String,
             required: true,
-            maxlength: 100,
+            maxlength: 200,
         },
         role: {
             type: String,
             required: true,
-            maxlength: 100
+            maxlength: 200
         },
         description: {
             type: String,
             required: true,
-            maxlength: 5000
+            maxlength: 10000
         },
         status: {
             type: String,
             default: 'wishlist'
+        },
+        aiStatus: {
+            type: String,
+            enum: ['pending', 'processing', 'completed', 'failed'],
+            default: 'pending'
         },
         appliedDate: {
             type: Date,
@@ -49,7 +55,7 @@ const JobApplicationSchema = new Schema<IJobApplication>(
         },
         location: {
             type: String,
-            maxlength: 100
+            maxlength: 500
         },
         columnId: {
             type: Schema.Types.ObjectId,
@@ -75,11 +81,11 @@ const JobApplicationSchema = new Schema<IJobApplication>(
         },
         notes: {
             type: String,
-            maxlength: 5000
+            maxlength: 10000
         },
         salary: {
             type: String,
-            maxlength: 100
+            maxlength: 200
         },
         jobUrl: {
             type: String,
@@ -87,7 +93,7 @@ const JobApplicationSchema = new Schema<IJobApplication>(
         },
         coverLetter: {
             type: String,
-            maxlength: 5000
+            maxlength: 10000
         }
     },
     {

@@ -17,6 +17,7 @@ import EditEducationDialog from "./edit-education-dialog";
 import { useState } from "react";
 import { deleteEducation } from "@/lib/actions/profile-education";
 import { IoSchoolSharp } from "react-icons/io5";
+import { toast } from "sonner";
 
 function SingleEducationCard({ education }: { education: Education }) {
   console.log(education);
@@ -24,11 +25,17 @@ function SingleEducationCard({ education }: { education: Education }) {
   async function handleDelete() {
     try {
       const result = await deleteEducation(education._id);
+
+      if (!result.error) {
+        toast.success('Successfully deleted the education entry.');
+      }
       if (result.error) {
-        console.error("Failed to delete education entry ", result.error);
+        console.error("Failed to delete education entry.", result.error);
+        toast.error("Failed to delete education entry.");
       }
     } catch (err) {
       console.error("Failed to delete education entry.");
+      toast.error("Failed to delete education entry.");
     }
   }
   return (

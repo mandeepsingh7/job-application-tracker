@@ -15,17 +15,23 @@ import { useState } from "react";
 import { deleteExperience } from "@/lib/actions/profile-experience";
 import EditExperienceDialog from "./edit-experience-dialog";
 import CreateExperienceDialog from "./create-experience-dialog";
+import { toast } from "sonner";
 
 function SingleExperienceCard({ experience }: { experience: Experience }) {
   const [isEditing, setIsEditing] = useState(false);
   async function handleDelete() {
     try {
       const result = await deleteExperience(experience._id);
+      if (!result.error) {
+        toast.success('Successfully deleted the experience entry.');
+      }
       if (result.error) {
         console.error("Failed to delete experience entry ", result.error);
+        toast.error("Failed to delete experience entry.");
       }
     } catch (err) {
       console.error("Failed to delete experience entry.");
+      toast.error("Failed to delete experience entry.");
     }
   }
   return (
@@ -38,7 +44,7 @@ function SingleExperienceCard({ experience }: { experience: Experience }) {
                 {experience.role}
               </h3>
               <p className="text-xs text-muted-foreground">
-                {experience.company}, {experience.location}
+                {experience.company}{experience.location ? <>, {experience.location}</>: <></>}
               </p>
               <p className="text-xs text-muted-foreground">
                 {new Date(experience.startDate).toLocaleDateString("en-GB", {

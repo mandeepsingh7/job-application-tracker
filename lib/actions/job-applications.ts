@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSession } from "../auth/auth";
 import connectDB from "../db";
 import { Board, Column, JobApplication, Profile } from "../models";
+import { success } from "better-auth";
 
 interface JobApplicationData {
     company: string;
@@ -17,6 +18,113 @@ interface JobApplicationData {
     notes?: string;
     coverLetter?: string;
     boardId: string;
+}
+
+export async function addCoverLetter(jobApplicationId: string) {
+    console.log('Start')
+    const session = await getSession();
+
+    if (!session?.user) {
+        return {error: "Unauthorized"};
+    }
+
+    await connectDB();
+
+    const jobApplication = await JobApplication.findById(jobApplicationId);
+
+    switch (jobApplication.aiStatus) {
+        case 'processing':
+            return {
+                error: 'Cover letter generation is already in progress.'
+            };
+
+        case 'completed':
+            return {
+                error: 'Cover letter has already been generated.'
+            };
+    }
+
+    await JobApplication.findByIdAndUpdate(
+        jobApplicationId,
+        {
+            aiStatus: 'processing'
+        }
+    );
+
+    revalidatePath('/dashboard');
+    const jobApplication_2 = await JobApplication.findById(jobApplicationId);
+
+
+    console.log(jobApplication_2.aiStatus)
+    console.log('End');
+
+    const profile = await Profile.findOne({
+        userId: session.user.id
+    });
+
+    const profilePayLoad = {
+        skills: profile.skills,
+        projects: profile.projects,
+        experience: profile.experience,
+        education: profile.education,
+        courses: profile.courses
+    }
+
+    const jobApplicationPayLoad = {
+        company: jobApplication.company,
+        role: jobApplication.role,
+        location: jobApplication.location,
+        salary: jobApplication.salary,
+        description: jobApplication.description,
+        notes: jobApplication.notes,
+        coverLetter: jobApplication.coverLetter
+    }
+
+    try {
+        const response = await fetch(
+            `${process.env.AI_BACKEND_URL}/job-application-tracker/generate`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    profile: profilePayLoad,
+                    job: jobApplicationPayLoad
+                })
+            }
+        )
+
+        if (!response.ok) {
+            throw new Error("AI Service failed");
+        }
+
+        const responseData = await response.json();
+        const newCoverLetter = responseData['cover_letter']
+        const newNotes = responseData['notes']
+
+        await JobApplication.findByIdAndUpdate(jobApplicationId, 
+            {
+                coverLetter: newCoverLetter,
+                notes: newNotes,
+                aiStatus: 'completed'
+            }
+        )
+    } catch (error) {
+        await JobApplication.findByIdAndUpdate(jobApplicationId, 
+            {
+                aiStatus: 'failed'
+            }
+        )
+
+        return {
+            error: 'Failed to generate cover letter.'
+        }
+    }
+
+    revalidatePath('/dashboard');
+
+    return {success: true};
 }
 
 export async function createJobApplication(data: JobApplicationData) {
@@ -85,6 +193,7 @@ export async function createJobApplication(data: JobApplicationData) {
         role,
         description,
         status: 'wishlist',
+        aiStatus: 'pending',
         appliedDate,
         lastResponseDate,
         location,
@@ -104,60 +213,13 @@ export async function createJobApplication(data: JobApplicationData) {
 
     revalidatePath('/dashboard');
 
-    const profile = await Profile.findOne({
-        userId: session.user.id
-    });
-
-    const profilePayLoad = {
-        skills: profile.skills,
-        projects: profile.projects,
-        experience: profile.experience,
-        education: profile.education,
-        courses: profile.courses
-    }
-
-    const jobApplicationPayLoad = {
-        company: data.company,
-        role: data.role,
-        location: data.location,
-        salary: data.salary,
-        description: data.description,
-        notes: data.notes,
-        coverLetter: data.coverLetter
-    }
-
-    const response = await fetch(
-        `${process.env.AI_BACKEND_URL}/job-application-tracker/generate`,
-        {
-            method: "POST",
-            headers: {
-                 "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                profile: profilePayLoad,
-                job: jobApplicationPayLoad
-            })
-        }
-    )
-
-    if (!response.ok) {
-        throw new Error("AI Service failed");
-    }
-
-    const responseData = await response.json();
-    const newCoverLetter = responseData['cover_letter']
-    const newNotes = responseData['notes']
-
-    await JobApplication.findByIdAndUpdate(jobApplication._id, 
-        {
-            coverLetter: newCoverLetter,
-            notes: newNotes
-        }
-    )
-
-    return { data: JSON.parse(JSON.stringify(jobApplication))};
+    return { data: JSON.parse(JSON.stringify(jobApplication)),
+        jobApplicationId: jobApplication._id.toString()
+    };
     // jobApplication is mongoose Document. Stringify converts it into Json and then parse converts it to JS object so it can be sent to client component. 
 }
+
+
 
 export async function updateJobApplication(
     id: string,
