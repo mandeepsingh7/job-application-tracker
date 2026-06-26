@@ -57,9 +57,9 @@ function KanbanColumn({
       </CardHeader>
       <CardContent className="overflow-y-auto flex-1">
       <div className="flex flex-col gap-5 pt-3 pb-5 px-3">
-        {sortedJobs.map((job, key) => (
+        {sortedJobs.map((job) => (
           <JobApplicationCard
-            key={key}
+            key={job._id}
             job={{ ...job, columnId: job.columnId || column._id }}
             columns={columns}
           />
@@ -80,8 +80,8 @@ export default function KanbanBoard({ board, userId }: KanbanBoardProps) {
 
       <div className="w-full px-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 place-items-center">
-          {columns.map((col, key) => {
-            return <KanbanColumn key={key} column={col} boardId={board._id} columns={columns}/>;
+          {columns.map((col) => {
+            return <KanbanColumn key={col._id} column={col} boardId={board._id} columns={columns}/>;
           })}
         </div>
       </div>
